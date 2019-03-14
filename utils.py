@@ -5,7 +5,7 @@ from datetime import datetime
 
 import sqlite3 as sql
 
-db = os.path.expanduser('SDNMonitor_db.sqlite')
+db = path.expanduser('SDNMonitor_db.sqlite')
 conn = sql.connect(db)
 c = conn.cursor()
 
