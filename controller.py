@@ -6,7 +6,7 @@ from .utils import db_handle
 from .switch import SwitchHandler
 
 def launch(interval=0.5):
-	dh = new db_handle(interval)
+	dh = db_handle(interval)
 	core.registerNew(SwitchHandler)
 	Timer(interval, dh.requestStats, recurring=True)
 	Timer(interval, dh.handleStats, recurring=True)
