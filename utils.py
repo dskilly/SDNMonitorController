@@ -1,17 +1,20 @@
 from pox.core import core
+import pox.openflow.libopenflow_01 as of
 
 from os import path
 from datetime import datetime
 
 import sqlite3 as sql
 
+db = path.join(path.expanduser('~'), 'db.sqlite3')
+traffic = 'SDNMonitorApp_total_traffic'
+logs = 'SDNMonitorApp_log_message'
+
 class db_handle:
-	def __init__(self, interval, connection):
+	def __init__(self, interval):
 		self.received = 0
 		self.transmitted = 0
 		self.interval = interval
-		self.conn = connection
-		self.c = conn.cursor()
 
 	def requestStats(self):
 		for con in core.openflow.connections:
@@ -20,10 +23,15 @@ class db_handle:
 	def handleStats(self):
 		rx = self.received * 8 / self.interval
 		tx = self.transmitted * 8 / self.interval
-		self.c.execute("INSERT INTO total_traffic (total_rx_bytes, total_tx_bytes) VALUES (?, ?)", (rx, tx))
-		self.conn.commit()
+		conn = sql.connect(db)
+		c = conn.cursor()
+		c.execute("INSERT INTO \"{}\" (total_rx_bytes, total_tx_bytes, ts) VALUES (?, ?, ?)".format(traffic), (rx, tx, datetime.now()))
+		conn.commit()
 
 def logger(logmsg):
 	log = core.getLogger()
 	log.info(logmsg)
-	self.c.execute("INSERT INTO Log_Message (device_id, date_time_col, Syslog) VALUEs (?, ?, ?)", ("", datetime.now(), logmsg))
+	conn = sql.connect(db)
+	c = conn.cursor()
+	c.execute("INSERT INTO \"{}\" (device_id, syslog, ts) VALUES (?, ?, ?)".format(logs), ("", logmsg, datetime.now()))
+	conn.commit()

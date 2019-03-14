@@ -7,6 +7,9 @@ class SwitchHandler():
 	def __init__(self):
 		self.macs = {}
 		core.openflow.addListeners(self)
+		self.received = 0
+		self.transmitted = 0
+		self.interval = 0.5
 
 	def _handle_ConnectionUp(self, event):
 		logger("Switch {} has connected".format(event.dpid))
@@ -19,8 +22,7 @@ class SwitchHandler():
 		event.connection.send(msg)
 
 	def _handle_PortStatsReceived(self, event):
-		global received, transmitted
 		for f in event.stats:
-			received = received - f.rx_bytes
-			transmitted = transmitted - f.tx_bytes
-		logger("Switch {} has received {} bytes and transmitted {} bytes.".format(event.dpid, received, transmitted))
+			self.received = self.received - f.rx_bytes
+			self.transmitted = self.transmitted - f.tx_bytes
+		logger("Switch {} has received {} bytes and transmitted {} bytes.".format(event.dpid, self.received, self.transmitted))
