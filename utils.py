@@ -5,15 +5,13 @@ from datetime import datetime
 
 import sqlite3 as sql
 
-db = path.expanduser('SDNMonitor_db.sqlite')
-conn = sql.connect(db)
-c = conn.cursor()
-
 class db_handle:
-	def __init__(self, interval):
+	def __init__(self, interval, connection):
 		self.received = 0
 		self.transmitted = 0
 		self.interval = interval
+		self.conn = connection
+		self.c = conn.cursor()
 
 	def requestStats(self):
 		for con in core.openflow.connections:
@@ -22,10 +20,10 @@ class db_handle:
 	def handleStats(self):
 		rx = self.received * 8 / self.interval
 		tx = self.transmitted * 8 / self.interval
-		c.execute("INSERT INTO total_traffic (total_rx_bytes, total_tx_bytes) VALUES (?, ?)", (rx, tx))
-		conn.commit()
+		self.c.execute("INSERT INTO total_traffic (total_rx_bytes, total_tx_bytes) VALUES (?, ?)", (rx, tx))
+		self.conn.commit()
 
 def logger(logmsg):
 	log = core.getLogger()
 	log.info(logmsg)
-	c.execute("INSERT INTO Log_Message (device_id, date_time_col, Syslog) VALUEs (?, ?, ?)", ("", datetime.now(), logmsg))
+	self.c.execute("INSERT INTO Log_Message (device_id, date_time_col, Syslog) VALUEs (?, ?, ?)", ("", datetime.now(), logmsg))
