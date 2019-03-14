@@ -5,12 +5,8 @@ from pox.openflow.discovery import Discovery
 from .utils import db_handle
 from .switch import SwitchHandler
 
-interval = 0.5
-
-def launch(intervals=interval):
-	global interval
-	interval = intervals
-	dh = newd db_handle()
+def launch(interval=0.5):
+	dh = new db_handle(interval)
 	core.registerNew(SwitchHandler)
 	Timer(interval, dh.requestStats, recurring=True)
 	Timer(interval, dh.handleStats, recurring=True)

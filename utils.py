@@ -1,27 +1,27 @@
 from pox.core import core
 
 from os import path
-from pathlib import Path
 from datetime import datetime
 
 import sqlite3 as sql
 
-db = path.join(Path.home(), 'SDNMonitor_db.sqlite')
+db = os.path.expanduser('SDNMonitor_db.sqlite')
 conn = sql.connect(db)
 c = conn.cursor()
 
-class db_handle():
-	def __init__(self):
+class db_handle:
+	def __init__(self, interval):
 		self.received = 0
 		self.transmitted = 0
+		self.interval = interval
 
 	def requestStats(self):
 		for con in core.openflow.connections:
 			con.send(of.ofp_stats_request(body=of.ofp_port_stats_request()))
 
 	def handleStats(self):
-		rx = self.received * 8 / interval
-		tx = self.transmitted * 8 / interval
+		rx = self.received * 8 / self.interval
+		tx = self.transmitted * 8 / self.interval
 		c.execute("INSERT INTO total_traffic (total_rx_bytes, total_tx_bytes) VALUES (?, ?)", (rx, tx))
 		conn.commit()
 

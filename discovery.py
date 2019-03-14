@@ -12,4 +12,8 @@ class topology_discovery(EventMixin):
 		logger('Topology discovery init over')
 
 	def _handle_LinkEvent(self, event):
-		
+		link = event.link
+		sw1 = l.dpid1
+		sw2 = l.dpid2
+		po1 = l.port1
+		po2 = l.port2
