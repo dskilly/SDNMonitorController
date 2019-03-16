@@ -22,6 +22,5 @@ def launch(interval=5):
 		conn.commit()'''
 	switch = SwitchWrap(topo)
 	core.registerNew(SwitchWrap.SwitchHandler)
-	core.registerNew(topology_discovery)
 	#Timer(interval, dh.requestStats, recurring=True)
 	#Timer(interval, dh.handleStats, recurring=True)

@@ -33,3 +33,6 @@ class topology_discovery(EventMixin):
 			c.execute("UPDATE {} status_changed = ? WHERE id = ?".format(links_table), (datetime.now(), id))
 		elif l.removed:
 			c.execute("UPDATE {} status_changed = ?, status = ? WHERE id = ?".format(links_table), (datetime.now(), False, id))
+
+def launch():
+	core.registerNew(topology_discovery)
