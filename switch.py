@@ -22,11 +22,11 @@ class SwitchWrap:
 		def _handle_ConnectionUp(self, event):
 			conn = sql.connect(db)
 			c = conn.cursor()
-			netjsongraph_node_table = 'django_netjsongraph_node'
+			nodes_table = 'SDNMonitorApp_nodes_table'
 			switch = 'Switch{}'.format(event.dpid)
-			c.execute("SELECT 1 FROM {} WHERE id = ?".format(netjsongraph_node_table), (switch,))
+			c.execute("SELECT 1 FROM {} WHERE id = ?".format(nodes_table), (switch,))
 			if c.fetchone() is None:
-				c.execute("INSERT INTO {} (id, created, modified, label, properties, topology_id, addresses) VALUEs (?, ?, ?, ?, ?, ?, ?)".format(netjsongraph_node_table), (switch, datetime.now(), datetime.now(), switch, "", topo_name, ""))
+				c.execute("INSERT INTO {} (id, created, modified, label) VALUEs (?, ?, ?, ?)".format(nodes_table), (switch, datetime.now(), datetime.now(), switch,))
 				conn.commit()
 			logger("Switch {} has connected".format(event.dpid))
 
