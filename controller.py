@@ -20,6 +20,7 @@ def launch(interval=5):
 	c.execute("SELECT 1 FROM {} WHERE label = ?".format(netjsongraph_topo_table), (topo_name,))
 	if c.fetchone() is None:
 		c.execute("INSERT INTO {} (id, label, created, modified, url, protocol, version, revision, metric, published, strategy, expiration_time, key, parser) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)".format(netjsongraph_topo_table), (topo_name, topo_name, datetime.now(), datetime.now(), "", "", "", "", "", True, "Manual", -1, "", "NetJSON NetworkGraph"))
+		conn.commit()
 	switch = SwitchWrap(topo, dbPath)
 	core.registerNew(SwitchWrap.SwitchHandler)
 	Timer(interval, dh.requestStats, recurring=True)
