@@ -2,11 +2,11 @@ from pox.core import core
 import pox.openflow.libopenflow_01 as of
 
 from .utils import logger
+from .settings import *
 
 class SwitchWrap:
-	def __init__(self, passInTopo, db):
+	def __init__(self, passInTopo):
 		self.topo = passInTopo
-		self.dbPath = db
 		
 	class SwitchHandler():
 		def __init__(self):

@@ -2,18 +2,18 @@ from pox.core import core
 import pox.openflow.libopenflow_01 as of
 
 from datetime import datetime
-
 import sqlite3 as sql
+
+from .settings import *
 
 traffic = 'SDNMonitorApp_total_traffic'
 logs = 'SDNMonitorApp_log_message'
 
 class db_handle:
-	def __init__(self, interval, dbPath):
+	def __init__(self, interval):
 		self.received = 0
 		self.transmitted = 0
 		self.interval = interval
-		self.db = dbPath
 
 	def requestStats(self):
 		for con in core.openflow.connections:
@@ -22,7 +22,7 @@ class db_handle:
 	def handleStats(self):
 		rx = self.received * 8 / self.interval
 		tx = self.transmitted * 8 / self.interval
-		conn = sql.connect(self.db)
+		conn = sql.connect(db)
 		c = conn.cursor()
 		c.execute("INSERT INTO {} (total_rx_bytes, total_tx_bytes, ts) VALUES (?, ?, ?)".format(traffic), (rx, tx, datetime.now()))
 		conn.commit()
@@ -30,7 +30,7 @@ class db_handle:
 def logger(logmsg):
 	log = core.getLogger()
 	log.info(logmsg)
-	conn = sql.connect(self.db)
+	conn = sql.connect(db)
 	c = conn.cursor()
 	c.execute("INSERT INTO {} (device_id, syslog, ts) VALUES (?, ?, ?)".format(logs), ("", logmsg, datetime.now()))
 	conn.commit()
