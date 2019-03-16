@@ -4,7 +4,7 @@ import pox.openflow.libopenflow_01 as of
 from .utils import logger
 
 class SwitchWrap:
-	def __init__(self, passInTopo={}, db):
+	def __init__(self, passInTopo, db):
 		self.topo = passInTopo
 		self.dbPath = db
 		

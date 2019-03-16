@@ -4,6 +4,7 @@ from pox.openflow.discovery import Discovery
 
 from os import path
 import sqlite3 as sql
+from datetime import datetime
 
 from .utils import db_handle
 from .switch import SwitchWrap
@@ -16,11 +17,10 @@ def launch(interval=5):
 	topo = {}
 	topo_name = 'SDNMonitorTopoTest'
 	netjsongraph_topo_table = 'django_netjsongraph_topology'
-	c.execute("SELECT 1 FROM {} WHERE label = ?".format(django_netjsongraph_topology, (topo_name))
-	if c.fetchone is None:
-		c.execute("INSERT INTO {} (label) VALUES (?)".format(netjsongraph_topo_table), (topo_name))
+	c.execute("SELECT 1 FROM {} WHERE label = ?".format(netjsongraph_topo_table), (topo_name,))
+	if c.fetchone() is None:
+		c.execute("INSERT INTO {} (id, label, created, modified, url, protocol, version, revision, metric, published, strategy, expiration_time, key, parser) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)".format(netjsongraph_topo_table), (topo_name, topo_name, datetime.now(), datetime.now(), "", "", "", "", "", True, "Manual", -1, "", "NetJSON NetworkGraph"))
 	switch = SwitchWrap(topo, dbPath)
-	SwitchHandler = switch.SwitchHandler()
-	core.registerNew(SwitchHandler)
+	core.registerNew(SwitchWrap.SwitchHandler)
 	Timer(interval, dh.requestStats, recurring=True)
 	Timer(interval, dh.handleStats, recurring=True)
