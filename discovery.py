@@ -26,9 +26,6 @@ class topology_discovery(EventMixin):
 		conn = sql.connect(db)
 		c = conn.cursor()
 		c.execute("SELECT 1 FROM {} WHERE id = ?".format(links_table), (id,))
-		print(event.added)
-		print(event.removed)
-		print(dir(event))
 		if c.fetchone() is None and event.added:
 			c.execute("INSERT INTO {} (id, created, modified, cost, status, source_id, target_id, status_changed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)".format(links_table), (id, datetime.now(), datetime.now(), 1, True, sw1, sw2, datetime.now()))
 		elif event.added:
