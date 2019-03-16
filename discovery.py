@@ -1,7 +1,10 @@
 from pox.openflow.discovery import Discovery
 from pox.lib.revent import EventMixin
 
+import sqlite3 as sql
+
 from .utils import logger
+from .settings import *
 
 class topology_discovery(EventMixin):
 	def __init__(self):
@@ -12,6 +15,8 @@ class topology_discovery(EventMixin):
 		logger('Topology discovery init over')
 
 	def _handle_LinkEvent(self, event):
+		netjsongraph_link_table = 'django_netjsongraph_link'
+
 		link = event.link
 		sw1 = l.dpid1
 		sw2 = l.dpid2
