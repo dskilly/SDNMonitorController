@@ -32,5 +32,5 @@ def logger(logmsg):
 	log.info(logmsg)
 	conn = sql.connect(db)
 	c = conn.cursor()
-	c.execute("INSERT INTO {} (device_id, syslog, ts) VALUES (?, ?, ?)".format(logs), ("", logmsg, datetime.now()))
-	conn.commit()
+	#c.execute("INSERT INTO {} (device_id, syslog, ts) VALUES (?, ?, ?)".format(logs), ("", logmsg, datetime.now()))
+	#conn.commit()

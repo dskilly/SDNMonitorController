@@ -27,6 +27,7 @@ class SwitchWrap:
 			c.execute("SELECT 1 FROM {} WHERE id = ?".format(netjsongraph_node_table), (switch,))
 			if c.fetchone() is None:
 				c.execute("INSERT INTO {} (id, created, modified, label, properties, topology_id, addresses) VALUEs (?, ?, ?, ?, ?, ?, ?)".format(netjsongraph_node_table), (switch, datetime.now(), datetime.now(), switch, "", topo_name, ""))
+				conn.commit()
 			logger("Switch {} has connected".format(event.dpid))
 
 		def _handle_PacketIn(self, event):

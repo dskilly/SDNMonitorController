@@ -22,5 +22,5 @@ def launch(interval=5):
 		conn.commit()
 	switch = SwitchWrap(topo)
 	core.registerNew(SwitchWrap.SwitchHandler)
-	Timer(interval, dh.requestStats, recurring=True)
-	Timer(interval, dh.handleStats, recurring=True)
+	#Timer(interval, dh.requestStats, recurring=True)
+	#Timer(interval, dh.handleStats, recurring=True)
