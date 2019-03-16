@@ -1,3 +1,4 @@
+from pox.core import core
 from pox.openflow.discovery import Discovery
 from pox.lib.revent import EventMixin
 
