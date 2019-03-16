@@ -10,10 +10,9 @@ from .settings import *
 
 class topology_discovery(EventMixin):
 	def __init__(self):
-		def startup():
-			core.openflow.addListeners(self, priority = 0)
-			core.openflow_dicovery.addListeners(self)
-		core.call_when_ready(startup, ('openflow', 'openflow_discovery'))
+		self.listenTo(core.openflow, priority=0)
+		self.listenTo(core.openflow_discovery)
+		core.openflow.addListeners(self)
 		logger('Topology discovery init over')
 
 	def _handle_LinkEvent(self, event):
@@ -27,12 +26,13 @@ class topology_discovery(EventMixin):
 		conn = sql.connect(db)
 		c = conn.cursor()
 		c.execute("SELECT 1 FROM {} WHERE id = ?".format(links_table), (id,))
-		if c.fetchone is None and l.added:
+		print(event.added)
+		print(event.removed)
+		print(dir(event))
+		if c.fetchone() is None and event.added:
 			c.execute("INSERT INTO {} (id, created, modified, cost, status, source_id, target_id, status_changed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)".format(links_table), (id, datetime.now(), datetime.now(), 1, True, sw1, sw2, datetime.now()))
-		elif l.added:
-			c.execute("UPDATE {} status_changed = ? WHERE id = ?".format(links_table), (datetime.now(), id))
-		elif l.removed:
-			c.execute("UPDATE {} status_changed = ?, status = ? WHERE id = ?".format(links_table), (datetime.now(), False, id))
-
-def launch():
-	core.registerNew(topology_discovery)
+		elif event.added:
+			c.execute("UPDATE {} SET status_changed = ? WHERE id = ?".format(links_table), (datetime.now(), id))
+		elif event.removed:
+			c.execute("UPDATE {} SET status_changed = ?, status = ? WHERE id = ?".format(links_table), (datetime.now(), False, id))
+		conn.commit()

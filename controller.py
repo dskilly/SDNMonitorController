@@ -1,5 +1,6 @@
 from pox.core import core
 from pox.lib.recoco import Timer
+from pox.openflow.discovery import Discovery
 
 from os import path
 import sqlite3 as sql
@@ -22,5 +23,8 @@ def launch(interval=5):
 		conn.commit()'''
 	switch = SwitchWrap(topo)
 	core.registerNew(SwitchWrap.SwitchHandler)
+	if 'openflow_discovery' not in core.components:
+		core.registerNew(Discovery)
+	core.registerNew(topology_discovery)
 	#Timer(interval, dh.requestStats, recurring=True)
 	#Timer(interval, dh.handleStats, recurring=True)
