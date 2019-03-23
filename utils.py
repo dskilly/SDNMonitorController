@@ -2,7 +2,7 @@ from pox.core import core
 import pox.openflow.libopenflow_01 as of
 
 from datetime import datetime
-import sqlite3 as sql
+import psycopg2 as sql
 
 from .settings import *
 

@@ -2,7 +2,7 @@ from pox.core import core
 from pox.openflow.discovery import Discovery
 from pox.lib.revent import EventMixin
 
-import sqlite3 as sql
+import psycopg2 as sql
 from datetime import datetime
 
 from .utils import logger

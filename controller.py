@@ -3,7 +3,7 @@ from pox.lib.recoco import Timer
 from pox.openflow.discovery import Discovery
 
 from os import path
-import sqlite3 as sql
+import psycopg2 as sql
 from datetime import datetime
 
 from .utils import db_handle

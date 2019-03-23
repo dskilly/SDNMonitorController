@@ -1,5 +1,5 @@
 from os import path
 
-db = path.expanduser('~/db.sqlite3')
+db = 'dbname=sdnmonitorapp user=sdnmonitor host=localhost password=memeteam'
 
 topo_name = 'SDNMonitorTopoTest'

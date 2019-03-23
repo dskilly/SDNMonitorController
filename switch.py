@@ -1,7 +1,7 @@
 from pox.core import core
 import pox.openflow.libopenflow_01 as of
 
-import sqlite3 as sql
+import psycopg2 as sql
 from datetime import datetime
 
 from .utils import logger
