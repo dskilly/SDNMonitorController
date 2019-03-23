@@ -25,11 +25,11 @@ class topology_discovery(EventMixin):
 		id = '{}:{} to {}:{}'.format(sw1, po1, sw2, po2)
 		conn = sql.connect(db)
 		c = conn.cursor()
-		c.execute("SELECT 1 FROM {} WHERE id = ?".format(links_table), (id,))
+		c.execute("SELECT 1 FROM {} WHERE id = %s".format(links_table), (id,))
 		if c.fetchone() is None and event.added:
-			c.execute("INSERT INTO {} (id, created, modified, cost, status, source_id, target_id, status_changed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)".format(links_table), (id, datetime.now(), datetime.now(), 1, True, sw1, sw2, datetime.now()))
+			c.execute("INSERT INTO {} (id, created, modified, cost, status, source_id, target_id, status_changed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)".format(links_table), (id, datetime.now(), datetime.now(), 1, True, sw1, sw2, datetime.now()))
 		elif event.added:
-			c.execute("UPDATE {} SET status_changed = ? WHERE id = ?".format(links_table), (datetime.now(), id))
+			c.execute("UPDATE {} SET status_changed = %s WHERE id = %s".format(links_table), (datetime.now(), id))
 		elif event.removed:
-			c.execute("UPDATE {} SET status_changed = ?, status = ? WHERE id = ?".format(links_table), (datetime.now(), False, id))
+			c.execute("UPDATE {} SET status_changed = %s, status = %s WHERE id = %s".format(links_table), (datetime.now(), False, id))
 		conn.commit()
