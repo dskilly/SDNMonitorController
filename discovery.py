@@ -31,5 +31,6 @@ class topology_discovery(EventMixin):
 		elif event.added:
 			c.execute("UPDATE \"{}\" SET status_changed = %s WHERE id = %s".format(links_table), (datetime.now(), id))
 		elif event.removed:
-			c.execute("UPDATE \"{}\" SET status_changed = %s, status = %s WHERE id = %s".format(links_table), (datetime.now(), False, id))
+			#c.execute("UPDATE \"{}\" SET status_changed = %s, status = %s WHERE id = %s".format(links_table), (datetime.now(), False, id))
+			c.execute("DELETE FROM \"{}\" WHERE id = %s".format(links_table), (id))
 		conn.commit()
