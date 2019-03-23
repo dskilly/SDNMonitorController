@@ -24,7 +24,7 @@ class db_handle:
 		tx = self.transmitted * 8 / self.interval
 		conn = sql.connect(db)
 		c = conn.cursor()
-		c.execute("INSERT INTO {} (total_rx_bytes, total_tx_bytes, ts) VALUES (%s, %s, %s)".format(traffic), (rx, tx, datetime.now()))
+		c.execute("INSERT INTO \"{}\" (total_rx_bytes, total_tx_bytes, ts) VALUES (%s, %s, %s)".format(traffic), (rx, tx, datetime.now()))
 		conn.commit()
 
 def logger(logmsg):

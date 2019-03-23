@@ -24,9 +24,9 @@ class SwitchWrap:
 			c = conn.cursor()
 			nodes_table = 'SDNMonitorApp_nodes_table'
 			switch = 'Switch{}'.format(event.dpid)
-			c.execute("SELECT 1 FROM {} WHERE id = %s".format(nodes_table), (switch,))
+			c.execute("SELECT 1 FROM \"{}\" WHERE id = %s".format(nodes_table), (switch,))
 			if c.fetchone() is None:
-				c.execute("INSERT INTO {} (id, created, modified, label) VALUES (%s, %s, %s, %s)".format(nodes_table), (switch, datetime.now(), datetime.now(), switch,))
+				c.execute("INSERT INTO \"{}\" (id, created, modified, label) VALUES (%s, %s, %s, %s)".format(nodes_table), (switch, datetime.now(), datetime.now(), switch,))
 				conn.commit()
 			logger("Switch {} has connected".format(event.dpid))
 
