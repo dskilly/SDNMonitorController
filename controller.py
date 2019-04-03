@@ -11,7 +11,7 @@ from .switch import SwitchHandler
 from .discovery import topology_discovery
 from .settings import *
 
-def launch(interval=10):
+def launch(interval=2):
 	dh = db_handle(interval)
 	conn = sql.connect(db)
 	c = conn.cursor()

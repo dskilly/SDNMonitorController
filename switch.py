@@ -18,7 +18,7 @@ class SwitchHandler():
                 self.tableActiveCount = {}
 		self.interval = 0.5
 		self.mac = {}
-		self.connection
+		self.connection = None
 
 	def _handle_ConnectionUp(self, event):
 		conn = sql.connect(db)
@@ -71,7 +71,7 @@ class SwitchHandler():
 			logger("Switch {} on port {} has received {} bytes and transmitted {} bytes.".format(sw, port, self.received[sw], self.transmitted[sw]))
 			
 			status = 'up'
-			if self.transmitted[sw] > 0:
+			if self.transmitted[sw] > 2000:
 				status = 'congested'
 			c.execute('SELECT source_id, target_id FROM "{}" WHERE (source_id = %s AND source_port = %s) OR (target_id = %s AND target_port = %s)'.format(tables.links_table), (src, port, src, port))
 			res = c.fetchone()
