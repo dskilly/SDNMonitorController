@@ -24,5 +24,5 @@ def launch(interval=5):
 	if 'openflow_discovery' not in core.components:
 		core.registerNew(Discovery)
 	core.registerNew(topology_discovery)
-	#Timer(interval, dh.requestStats, recurring=True)
+	Timer(interval, dh.requestStats, recurring=True)
 	#Timer(interval, dh.handleStats, recurring=True)
