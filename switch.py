@@ -77,9 +77,9 @@ class SwitchHandler():
 				sw1 = res[0]
 				sw2 = res[1]
 				c.execute('SELECT id FROM "{}" WHERE label = %s'.format(tables.netgraph_nodes), (sw1,))
-                                    x = c.fetchone()
-                                    if x is None:
-                                        break
+				x = c.fetchone()
+				if x is None:
+					break
 				id1 = x[0]
 				c.execute('SELECT id FROM "{}" WHERE label = %s'.format(tables.netgraph_nodes), (sw2,))
 				x = c.fetchone()
