@@ -51,7 +51,7 @@ class SwitchHandler():
 		conn = sql.connect(db)
 		c = conn.cursor()
 		for f in event.stats:
-			c.execute('INSERT INTO "{}" (table_id, duration_sec, priority, idle_timeout, hard_timeout, packet_count) VALUES (%s, %s, %s, %s, %s, %s, %s)'.format(tables.flows), (f.table_id, f.duration_sec, f.priority, f.idle_timeout, f.hard_timeout, f.packet_count))
+			c.execute('INSERT INTO "{}" (table_id, duration_sec, priority, idle_timeout, hard_timeout, packet_count) VALUES (%s, %s, %s, %s, %s, %s)'.format(tables.flows), (f.table_id, f.duration_sec, f.priority, f.idle_timeout, f.hard_timeout, f.packet_count))
 			logger("Switch {} flow stats received.")
 		conn.commit()
 
