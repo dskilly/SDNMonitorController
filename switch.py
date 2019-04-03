@@ -91,7 +91,7 @@ class SwitchHandler():
 		c = conn.cursor()
 		for f in event.stats:
 			c.execute('INSERT INTO "{}" (table_id, duration_sec, priority, idle_timeout, hard_timeout, packet_count) VALUES (%s, %s, %s, %s, %s, %s)'.format(tables.flows), (f.table_id, f.duration_sec, f.priority, f.idle_timeout, f.hard_timeout, f.packet_count))
-			logger("Switch {} flow stats received.")
+			#logger("Switch {} flow stats received.")
 		conn.commit()
 
 	def _handle_TableStatsReceived(self, event):
@@ -103,7 +103,7 @@ class SwitchHandler():
 			self.tableActiveCount[sw] = f.active_count
 			logger("TableStatsReceived %s"%self.tableActiveCount)
 			c.execute('INSERT INTO "{}" (table_id, name, wildcards, max_entries, active_count, lookup_count, matched_count) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT (table_id) DO UPDATE SET active_count = %s, lookup_count = %s, matched_count = %s'.format(tables.flowtables), (f.table_id, f.name, f.wildcards, f.max_entries, f.active_count, f.lookup_count, f.matched_count, f.active_count, f.lookup_count, f.matched_count))
-			logger("Switch {} flow table {} with max entries {}, {} active flows and {} matched.".format(sw, f.table_id if not f.name else f.name, f.max_entries, f.active_count, f.matched_count))
+			#logger("Switch {} flow table {} with max entries {}, {} active flows and {} matched.".format(sw, f.table_id if not f.name else f.name, f.max_entries, f.active_count, f.matched_count))
 		conn.commit()
 
 	def _handle_QueueStatsReceived(self, event):
@@ -115,7 +115,7 @@ class SwitchHandler():
 			self.packets = f.tx_packets
 			self.errors = f.tx_errors
 			c.execute('INSERT INTO "{}" (port_no, queue_id, tx_bytes, tx_packets, tx_errors) VALUES (%s, %s, %s, %s, %s)'.format(tables.queues), (f.port_no, f.queue_id, f.tx_bytes, f.tx_packets, f.tx_errors))
-			logger("Switch {} queue stats {} bytes transmitted, {} packets transmitted and {} errors.".format(sw, self.transmitted, self.packets, self.errors))
+			#logger("Switch {} queue stats {} bytes transmitted, {} packets transmitted and {} errors.".format(sw, self.transmitted, self.packets, self.errors))
 		conn.commit()
 
 	def handleStats(self):
