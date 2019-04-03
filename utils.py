@@ -19,9 +19,9 @@ class db_handle:
 		for con in core.openflow.connections:
 			con.send(of.ofp_stats_request(body=of.ofp_port_stats_request()))
 			con.send(of.ofp_stats_request(body=of.ofp_flow_stats_request()))
-			con.send(of.ofp_stats_request(body=of.ofp_desc_stats_request()))
-			con.send(of.ofp_stats_request(body=of.ofp_table_stats_request()))
-			con.send(of.ofp_stats_request(body=of.ofp_queue_stats_request()))
+			#con.send(of.ofp_stats_request(body=of.ofp_desc_stats_request()))
+			#con.send(of.ofp_stats_request(body=of.ofp_table_stats_request()))
+			#con.send(of.ofp_stats_request(body=of.ofp_queue_stats_request()))
 
 def logger(logmsg):
 	log = core.getLogger()
