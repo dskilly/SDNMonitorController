@@ -18,6 +18,7 @@ class SwitchHandler():
                 self.tableActiveCount = {}
 		self.interval = 0.5
 		self.mac = {}
+		self.connection
 
 	def _handle_ConnectionUp(self, event):
 		conn = sql.connect(db)
@@ -29,6 +30,7 @@ class SwitchHandler():
 			c.execute("INSERT INTO \"{}\" (id, created, modified, label) VALUES (%s, %s, %s, %s)".format(nodes_table), (switch, datetime.now(), datetime.now(), switch,))
 			conn.commit()
 		logger("Switch {} has connected".format(event.dpid))
+		self.connection = event.connection
 
 	def _handle_PacketIn(self, event):
 		packet = event.parse()
