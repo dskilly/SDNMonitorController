@@ -42,3 +42,24 @@ class SwitchWrap:
 				self.received = self.received - f.rx_bytes
 				self.transmitted = self.transmitted - f.tx_bytes
 			logger("Switch {} has received {} bytes and transmitted {} bytes.".format(event.dpid, self.received, self.transmitted))
+
+		def _handle_FlowStatsReceived(self, event):
+			for f in event.stats:
+				pass
+
+		def _handle_TableStatsReceived(self, event):
+			sw = 's%s'%event.dpid
+			self.max_entries[sw] = event.stats[0].max_entries
+			self.tableActiveCount[sw] = event.stats[0].active_count
+			print "TableStatsReceived"
+			print self.tableActiveCount
+
+			self.matched_count
+			logger("Switch {} has received {} bytes and transmitted {} bytes.".format(event.dpid, self.max_entries, self.active_count, self.matched_count))
+
+		def _handle_QueueStatsReceived(self, event):
+			for f in event.stats:
+				self.transmitted = f.tx_bytes
+				self.packets = f.tx_packets
+				self.errors = f.tx_errors
+			logger("Switch {} has received {} bytes and transmitted {} bytes.".format(event.dpid, self.transmitted, self.packets, self.errors))
