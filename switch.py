@@ -39,7 +39,7 @@ class SwitchHandler():
 	def _handle_PortStatsReceived(self, event):
 		conn = sql.connect(db)
 		c = conn.cursor()
-		sw = event.dpid
+		sw = 's%s'%event.dpid
 		for f in event.stats:
 			self.received[sw] = self.received[sw] - f.rx_bytes
 			self.transmitted[sw] = self.transmitted[sw] - f.tx_bytes
