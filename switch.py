@@ -61,11 +61,23 @@ class SwitchHandler():
 		c = conn.cursor()
 		sw = 's%s'%event.dpid
 		for f in event.stats:
-			self.received[sw] = self.received[sw] - f.rx_bytes if sw in self.received else f.rx_bytes
-			self.transmitted[sw] = self.transmitted[sw] - f.tx_bytes if sw in self.transmitted else f.tx_bytes
-			c.execute('INSERT INTO "{}" (device_id, port_id, rx_packets, tx_packets, rx_dropped, tx_dropped, rx_errors, tx_errors) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (port_id) DO UPDATE SET rx_packets = %s, tx_packets = %s, rx_dropped = %s, tx_dropped = %s, rx_errors = %s, tx_errors = %s'.format(tables.ports), (sw, f.port_no, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors))
-			logger("Switch {} on port {} has received {} bytes and transmitted {} bytes.".format(sw, f.port_no, f.rx_bytes, f.tx_bytes))
-			if self.transmitted
+			src = 'Switch{}'.format(event.dpid)
+			port = f.port_no
+			self.received['{}:{}'.format(sw, port)] = f.rx_bytes - self.received[sw]if sw in self.received else f.rx_bytes
+			self.transmitted['{}:{}'.format(sw, port)] = f.tx_bytes - self.transmitted[sw]if sw in self.transmitted else f.tx_bytes
+			c.execute('INSERT INTO "{}" (device_id, port_id, rx_packets, tx_packets, rx_dropped, tx_dropped, rx_errors, tx_errors) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (port_id) DO UPDATE SET rx_packets = %s, tx_packets = %s, rx_dropped = %s, tx_dropped = %s, rx_errors = %s, tx_errors = %s'.format(tables.ports), (sw, port, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors))
+			logger("Switch {} on port {} has received {} bytes and transmitted {} bytes.".format(sw, port, f.rx_bytes, f.tx_bytes))
+			if self.transmitted[sw] > 0:
+				c.execute('SELECT source_id, target_id FROM "{}" WHERE (source_id = %s AND source_port = %s) OR (target_id = %s AND target_port = %s)'.format(tables.links_table), (src, src))
+				res = c.fetchone()
+				if res is not None:
+					sw1 = res[0]
+					sw2 = res[1]
+					c.execute('SELECT id FROM "{}" WHERE label = %s'.format(tables.netgraph_nodes), (sw1,))
+					id1 = c.fetchone()[0]
+					c.execute('SELECT id FROM "{}" WHERE label = %s'.format(tables.netgraph_nodes), (sw2,))
+					id2 = c.fetchone()[0]
+					c.execute('UPDATE "{}" SET status = %s, status_changed = %s WHERE (source_id = %s AND target_id = %s) OR (source_id = %s AND target_id = %s)'.format(tables.netgraph_links), ('congested', datetime.now()))
 		conn.commit()
 
 	def _handle_FlowStatsReceived(self, event):
