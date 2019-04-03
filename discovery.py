@@ -17,7 +17,8 @@ class topology_discovery(EventMixin):
 
 	def _handle_LinkEvent(self, event):
 		links_table = 'SDNMonitorApp_links_table'
-                norm = l.dpid1 < l.dpid2
+		l = event.link
+		norm = l.dpid1 < l.dpid2
 		sw1 = 'Switch{}'.format(l.dpid1 if norm else l.dpid2)
 		sw2 = 'Switch{}'.format(l.dpid2 if norm else l.dpid1)
 		po1 = l.port1 if norm else l.port2

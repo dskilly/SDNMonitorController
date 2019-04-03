@@ -59,12 +59,12 @@ class SwitchHandler():
 	def _handle_PortStatsReceived(self, event):
 		conn = sql.connect(db)
 		c = conn.cursor()
-		sw = 's%s'%event.dpid
+		sw = '{}:{}'.format(sw, port)
 		for f in event.stats:
 			src = 'Switch{}'.format(event.dpid)
 			port = f.port_no
-			self.received['{}:{}'.format(sw, port)] = f.rx_bytes - self.received[sw]if sw in self.received else f.rx_bytes
-			self.transmitted['{}:{}'.format(sw, port)] = f.tx_bytes - self.transmitted[sw]if sw in self.transmitted else f.tx_bytes
+			self.received[sw] = f.rx_bytes - self.received[sw] if sw in self.received else f.rx_bytes
+			self.transmitted[sw] = f.tx_bytes - self.transmitted[sw] if sw in self.transmitted else f.tx_bytes
 			c.execute('INSERT INTO "{}" (device_id, port_id, rx_packets, tx_packets, rx_dropped, tx_dropped, rx_errors, tx_errors) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (port_id) DO UPDATE SET rx_packets = %s, tx_packets = %s, rx_dropped = %s, tx_dropped = %s, rx_errors = %s, tx_errors = %s'.format(tables.ports), (sw, port, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors))
 			logger("Switch {} on port {} has received {} bytes and transmitted {} bytes.".format(sw, port, f.rx_bytes, f.tx_bytes))
 			if self.transmitted[sw] > 0:
