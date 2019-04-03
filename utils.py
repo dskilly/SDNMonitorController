@@ -18,14 +18,10 @@ class db_handle:
 	def requestStats(self):
 		for con in core.openflow.connections:
 			con.send(of.ofp_stats_request(body=of.ofp_port_stats_request()))
-
-	def handleStats(self):
-		rx = self.received * 8 / self.interval
-		tx = self.transmitted * 8 / self.interval
-		conn = sql.connect(db)
-		c = conn.cursor()
-		c.execute("INSERT INTO \"{}\" (total_rx_bytes, total_tx_bytes, ts) VALUES (%s, %s, %s)".format(traffic), (rx, tx, datetime.now()))
-		conn.commit()
+			con.send(of.ofp_stats_request(body=of.ofp_flow_stats_request()))
+			con.send(of.ofp_stats_request(body=of.ofp_desc_stats_request()))
+			con.send(of.ofp_stats_request(body=of.ofp_table_stats_request()))
+			con.send(of.ofp_stats_request(body=of.ofp_queue_stats_request()))
 
 def logger(logmsg):
 	log = core.getLogger()
