@@ -17,6 +17,7 @@ class SwitchHandler():
                 self.max_entries = {}
                 self.tableActiveCount = {}
 		self.interval = 0.5
+		self.mac = {}
 
 	def _handle_ConnectionUp(self, event):
 		conn = sql.connect(db)
@@ -30,11 +31,30 @@ class SwitchHandler():
 		logger("Switch {} has connected".format(event.dpid))
 
 	def _handle_PacketIn(self, event):
+		packet = event.parse()
+		src = packet.src.toStr()
+		dst = packet.dst.toStr()
+		if dst in self.mac:
+			self.forward(event, self.mac[dst])
+		else:
+			self.flood(event)
+		if src not in self.mac:
+			self.mac[src] = event.port
+
+	def flood(self, pie):
 		msg = of.ofp_packet_out()
-		msg.actions.append(of.ofp_action_output(port=of.OFPP_FLOOD))
-		msg.buffer_id = event.ofp.buffer_id
-		msg.in_port = event.port
-		event.connection.send(msg)
+		msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+		msg.buffer_id = pie.ofp.buffer_id
+		msg.in_port = pie.port
+		self.connection.send(msg)
+
+	def forward(self, pie, to_port):
+		packet = pie.parse()
+		msg = of.ofp_flow_mod()
+		msg.match = of.ofp_match.from_packet(packet)
+		msg.actions.append(of.ofp_action_output(port = to_port))
+		msg.buffer_id = pie.ofp.buffer_id
+		self.connection.send(msg)
 
 	def _handle_PortStatsReceived(self, event):
 		conn = sql.connect(db)
@@ -45,6 +65,7 @@ class SwitchHandler():
 			self.transmitted[sw] = self.transmitted[sw] - f.tx_bytes if sw in self.transmitted else f.tx_bytes
 			c.execute('INSERT INTO "{}" (device_id, port_id, rx_packets, tx_packets, rx_dropped, tx_dropped, rx_errors, tx_errors) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (port_id) DO UPDATE SET rx_packets = %s, tx_packets = %s, rx_dropped = %s, tx_dropped = %s, rx_errors = %s, tx_errors = %s'.format(tables.ports), (sw, f.port_no, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors))
 			logger("Switch {} on port {} has received {} bytes and transmitted {} bytes.".format(sw, f.port_no, f.rx_bytes, f.tx_bytes))
+			if self.transmitted
 		conn.commit()
 
 	def _handle_FlowStatsReceived(self, event):
