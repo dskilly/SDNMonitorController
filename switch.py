@@ -4,6 +4,7 @@ import pox.openflow.libopenflow_01 as of
 
 import psycopg2 as sql
 from datetime import datetime
+from sys import maxsize
 
 from .utils import logger
 from .settings import *
@@ -14,23 +15,40 @@ class SwitchHandler():
 		core.openflow.addListeners(self)
 		self.received = {}
 		self.transmitted = {}
-                self.max_entries = {}
-                self.tableActiveCount = {}
+		self.tx_min = maxsize
+		self.tx_max = 0
+		self.max_entries = {}
+		self.tableActiveCount = {}
 		self.interval = 0.5
 		self.mac = {}
 		self.connection = None
+		Timer(self.interval, self.reset_tx_min, recurring=True)
+
+	def reset_tx_min(self):
+		self.tx_min = maxsize
 
 	def _handle_ConnectionUp(self, event):
 		conn = sql.connect(db)
 		c = conn.cursor()
-		nodes_table = 'SDNMonitorApp_nodes_table'
+		nodes_table = tables.nodes_table
 		switch = 'Switch{}'.format(event.dpid)
 		c.execute("SELECT 1 FROM \"{}\" WHERE id = %s".format(nodes_table), (switch,))
 		if c.fetchone() is None:
 			c.execute("INSERT INTO \"{}\" (id, created, modified, label) VALUES (%s, %s, %s, %s)".format(nodes_table), (switch, datetime.now(), datetime.now(), switch,))
-			conn.commit()
+		conn.commit()
 		logger("Switch {} has connected".format(event.dpid))
 		self.connection = event.connection
+
+	def _hande_ConnectionDown(self, event):
+		conn = sql.connect(db)
+		c = conn.cursor()
+		nodes_table = tables.nodes_table
+		switch = 'Switch{}'.format(event.dpid)
+		c.execute('SELECT 1 FROM "{}" WHERE id = %s'.format(nodes_table), (switch,))
+		if c.fetchone() is not None:
+			c.execute('DELETE FROM "{}" WHERE id = %s'.format(nodes_table), (switch,))
+		conn.commit()
+		logger('Switch {} has been deleted from nodes table'.format(switch))
 
 	def _handle_PacketIn(self, event):
 		packet = event.parse()
@@ -67,11 +85,13 @@ class SwitchHandler():
                         sw = 's{}:{}'.format(event.dpid, port)
 			self.received[sw] = f.rx_bytes - self.received[sw] if sw in self.received else f.rx_bytes
 			self.transmitted[sw] = f.tx_bytes - self.transmitted[sw] if sw in self.transmitted else f.tx_bytes
+			self.tx_max = max(self.tx_max, self.transmitted[sw])
+			self.tx_min = min(self.tx_min, self.transmitted[sw])
 			c.execute('INSERT INTO "{}" (device_id, port_id, rx_packets, tx_packets, rx_dropped, tx_dropped, rx_errors, tx_errors) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (port_id) DO UPDATE SET rx_packets = %s, tx_packets = %s, rx_dropped = %s, tx_dropped = %s, rx_errors = %s, tx_errors = %s'.format(tables.ports), (src, sw, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors, f.rx_packets, f.tx_packets, f.rx_dropped, f.tx_dropped, f.rx_errors, f.tx_errors))
 			logger("Switch {} on port {} has received {} bytes and transmitted {} bytes.".format(sw, port, self.received[sw], self.transmitted[sw]))
 			
 			status = 'up'
-			if self.transmitted[sw] > 2000:
+			if self.transmitted[sw] > ((self.tx_max - self.tx_min) / 2 + self.tx_min):
 				status = 'congested'
 			c.execute('SELECT source_id, target_id FROM "{}" WHERE (source_id = %s AND source_port = %s) OR (target_id = %s AND target_port = %s)'.format(tables.links_table), (src, port, src, port))
 			res = c.fetchone()
