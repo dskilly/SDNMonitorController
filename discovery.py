@@ -34,4 +34,15 @@ class topology_discovery(EventMixin):
 		elif event.removed:
 			#c.execute("UPDATE \"{}\" SET status_changed = %s, status = %s WHERE id = %s".format(links_table), (datetime.now(), False, id))
 			c.execute("DELETE FROM \"{}\" WHERE id = %s".format(links_table), (id,))
+			c.execute('SELECT id FROM "{}" WHERE label = %s'.format(tables.netgraph_nodes), (sw1,))
+			x = c.fetchone()
+			if x is None:
+				return
+			id1 = x[0]
+			c.execute('SELECT id FROM "{}" WHERE label = %s'.format(tables.netgraph_nodes), (sw2,))
+			x = c.fetchone()
+			if x is None:
+				return
+			id2 = x[0]
+			c.execute('UPDATE "{}" SET status = %s'.format(tables.netgraph_links), ('down',))
 		conn.commit()

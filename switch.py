@@ -108,7 +108,8 @@ class SwitchHandler():
 				if x is None:
 					break
 				id2 = x[0]
-				c.execute('UPDATE "{}" SET status = %s, status_changed = %s WHERE (source_id = %s AND target_id = %s) OR (source_id = %s AND target_id = %s)'.format(tables.netgraph_links), (status, datetime.now(), id1, id2, id2, id1))
+				c.execute('UPDATE "{}" SET status = %s WHERE (source_id = %s AND target_id = %s) OR (source_id = %s AND target_id = %s)'.format(tables.netgraph_links), (status, id1, id2, id2, id1))
+				c.execute('UPDATE "{}" SET status = %s WHERE (source_id = %s AND target_id = %s)'.format(tables.links_table), (status, sw1, sw2))
 		conn.commit()
 
 	def _handle_FlowStatsReceived(self, event):
